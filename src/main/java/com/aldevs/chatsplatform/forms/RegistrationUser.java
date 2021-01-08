@@ -4,7 +4,7 @@ import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class SaveUser {
+public class RegistrationUser {
 
     @NotBlank(message = "profileName cannot be empty")
     private String profileName;

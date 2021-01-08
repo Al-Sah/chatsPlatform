@@ -1,8 +1,8 @@
 package com.aldevs.chatsplatform.controller;
 
 import com.aldevs.chatsplatform.forms.ResponseUser;
-import com.aldevs.chatsplatform.forms.SaveUser;
-import com.aldevs.chatsplatform.resoursses.messageErrorResponse;
+import com.aldevs.chatsplatform.forms.RegistrationUser;
+import com.aldevs.chatsplatform.resource.messageErrorResponse;
 import com.aldevs.chatsplatform.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,14 +19,12 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public ResponseUser registration(@Valid @RequestBody SaveUser saveUser){
-         return userService.formResponse(userService.saveUser(saveUser));
+    public ResponseUser registration(@Valid @RequestBody RegistrationUser saveUser){
+         return new ResponseUser(userService.saveUser(saveUser));
     }
 
     @ExceptionHandler
     public ResponseEntity<messageErrorResponse> handleAuthException(RuntimeException exception) {
-        var response = new messageErrorResponse(exception.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
-
 }

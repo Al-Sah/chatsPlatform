@@ -30,5 +30,15 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    public User(){}
+
+    public User(String profileName,String username,String email,String userAbout,String password, Set<Role> roles){
+        this.profileName = profileName;
+        this.username = username;
+        this.email = email;
+        this.userAbout = userAbout;
+        this.password = password;
+        this.roles = roles;
+    }
 
 }

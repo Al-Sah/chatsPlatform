@@ -42,14 +42,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    protected PasswordEncoder PasswordEncoder(){
+    protected PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder(12);
     }
 
     @Bean
     protected DaoAuthenticationProvider daoAuthenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(PasswordEncoder());
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         daoAuthenticationProvider.setUserDetailsService(userDetails);
         return daoAuthenticationProvider;
     }

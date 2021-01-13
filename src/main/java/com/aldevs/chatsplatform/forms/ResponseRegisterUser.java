@@ -4,14 +4,14 @@ import com.aldevs.chatsplatform.entity.User;
 import lombok.Data;
 
 @Data
-public class ResponseUser {
+public class ResponseRegisterUser {
 
     private String profileName;
     private String username;
     private String email;
     private String userAbout;
 
-    public ResponseUser(User user){
+    public ResponseRegisterUser(User user){
         profileName = user.getProfileName();
         username = user.getUsername();
         email = user.getEmail();

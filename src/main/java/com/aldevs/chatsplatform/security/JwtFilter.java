@@ -22,7 +22,7 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        String token = authenticationProvider.getTokenFromServlet((HttpServletRequest) request);
+        String token = getTokenFromServlet((HttpServletRequest) request);
         if (token != null && authenticationProvider.validateToken(token)) {
             Authentication auth = authenticationProvider.getAuthentication(token);
             if (auth != null) {
@@ -30,5 +30,13 @@ public class JwtFilter extends GenericFilterBean {
             }
         }
         chain.doFilter(request, response);
+    }
+
+    public String getTokenFromServlet(HttpServletRequest req) {
+        String jwtToken = req.getHeader("Authorization");
+        if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
+            return jwtToken.substring(7);
+        }
+        return null;
     }
 }

@@ -1,15 +1,14 @@
 package com.aldevs.chatsplatform.security;
 
+import com.aldevs.chatsplatform.config.JWTConfiguration;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.security.Key;
 
@@ -19,12 +18,11 @@ public class JwtAuthenticationProvider {
 
     private final UserDetailsImplement userDetailsService;
     private Key secretKey;
+    private final Long validityTimeMls;
 
-    @Value("${security.jwt.expiredTime}")
-    private long validityTimeMls;
-
-    public JwtAuthenticationProvider(UserDetailsImplement userDetailsService) {
+    public JwtAuthenticationProvider(UserDetailsImplement userDetailsService, JWTConfiguration jwtConfiguration) {
         this.userDetailsService = userDetailsService;
+        this.validityTimeMls = jwtConfiguration.getValidTime();
     }
 
     @PostConstruct
@@ -41,14 +39,6 @@ public class JwtAuthenticationProvider {
                 .setExpiration(validity)
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
-    }
-
-    public String getTokenFromServlet(HttpServletRequest req) {
-        String jwtToken = req.getHeader("Authorization");
-        if (jwtToken != null && jwtToken.startsWith("Bearer ")) {
-            return jwtToken.substring(7);
-        }
-        return null;
     }
 
     public Authentication getAuthentication(String token) {

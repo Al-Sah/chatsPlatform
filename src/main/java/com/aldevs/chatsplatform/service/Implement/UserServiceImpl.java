@@ -15,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
 
@@ -24,10 +25,10 @@ import java.util.Collections;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationProvider authenticationProvider;
 
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtAuthenticationProvider authenticationProvider) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtAuthenticationProvider authenticationProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationProvider = authenticationProvider;
@@ -48,13 +49,9 @@ public class UserServiceImpl implements UserService {
         if(userRepository.existsByUsername(saveUser.getUsername())){
             throw new ObjectExistException("User with name [ " + saveUser.getUsername() + " ] exists!");
         }
-        if(!(saveUser.getPassword().equals(saveUser.getConfirmPassword()))){
-            throw new DataValidationException("Wrong confirm password");
-        }
         if(saveUser.getPassword().length() < 8){
             throw new DataValidationException("Small password");
-        }
-         // TODO validator
+        }// TODO validator
     }
 
     @Override

@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "security.jwt.expiredTime",
+      "type": "java.lang.Long",
+      "description": "Description for security.jwt.expiredTime."
+  }
+] }

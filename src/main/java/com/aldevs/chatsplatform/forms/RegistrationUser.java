@@ -15,6 +15,4 @@ public class RegistrationUser {
     private String userAbout;
     @NotBlank(message = "password cannot be empty")
     private String password;
-    @NotBlank(message = "confirmPassword cannot be empty")
-    private String confirmPassword;
 }

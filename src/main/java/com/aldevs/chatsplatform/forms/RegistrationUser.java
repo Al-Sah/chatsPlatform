@@ -1,5 +1,6 @@
 package com.aldevs.chatsplatform.forms;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -10,6 +11,7 @@ public class RegistrationUser {
     private String profileName;
     @NotBlank(message = "username cannot be empty")
     private String username;
+    @Email
     @NotBlank(message = "email address cannot be empty")
     private String email;
     private String userAbout;

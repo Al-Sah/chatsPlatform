@@ -1,14 +1,8 @@
 package com.aldevs.chatsplatform.controller;
 
-import com.aldevs.chatsplatform.forms.AuthenticatedUser;
-import com.aldevs.chatsplatform.forms.AuthenticationUser;
-import com.aldevs.chatsplatform.forms.ResponseRegisterUser;
-import com.aldevs.chatsplatform.forms.RegistrationUser;
-import com.aldevs.chatsplatform.resource.messageErrorResponse;
+import com.aldevs.chatsplatform.forms.*;
 import com.aldevs.chatsplatform.service.UserService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 
@@ -32,9 +26,4 @@ public class AuthController {
         return userService.loginUser(authenticationUser);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<messageErrorResponse> handleAuthException(RuntimeException exception) {
-        log.info("[AuthController] Caught AuthenticationException: " + exception.getMessage());
-        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.BAD_REQUEST);
-    }
 }

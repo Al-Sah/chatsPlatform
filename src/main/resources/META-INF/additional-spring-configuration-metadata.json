@@ -3,6 +3,6 @@
     {
       "name": "security.jwt.expiredTime",
       "type": "java.lang.Long",
-      "description": "Description for security.jwt.expiredTime."
+      "description": "Description for security.jwt.expiredTime. Shows valid time in milliseconds."
   }
 ] }

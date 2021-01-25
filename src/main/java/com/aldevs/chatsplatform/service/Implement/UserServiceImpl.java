@@ -1,12 +1,9 @@
 package com.aldevs.chatsplatform.service.Implement;
 
-import com.aldevs.chatsplatform.entity.Role;
-import com.aldevs.chatsplatform.entity.User;
+import com.aldevs.chatsplatform.entity.*;
 import com.aldevs.chatsplatform.exeption.DataValidationException;
-import com.aldevs.chatsplatform.exeption.ObjectExistException;
-import com.aldevs.chatsplatform.forms.AuthenticatedUser;
-import com.aldevs.chatsplatform.forms.AuthenticationUser;
-import com.aldevs.chatsplatform.forms.RegistrationUser;
+import com.aldevs.chatsplatform.exeption.UserExistException;
+import com.aldevs.chatsplatform.forms.*;
 import com.aldevs.chatsplatform.repository.UserRepository;
 import com.aldevs.chatsplatform.security.JwtAuthenticationProvider;
 import com.aldevs.chatsplatform.service.UserService;
@@ -14,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
@@ -47,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void validateUser(RegistrationUser saveUser){
         if(userRepository.existsByUsername(saveUser.getUsername())){
-            throw new ObjectExistException("User with name [ " + saveUser.getUsername() + " ] exists!");
+            throw new UserExistException(saveUser.getUsername());
         }
         if(saveUser.getPassword().length() < 8){
             throw new DataValidationException("Small password");
@@ -66,7 +62,7 @@ public class UserServiceImpl implements UserService {
                 Collections.singleton(Role.USER)
         );
         userRepository.save(user);
-        log.info("[UserService] User [ " + user.getUsername() + " ] registered successfully");
+        log.info("User [ " + user.getUsername() + " ] registered successfully");
         return user;
     }
 
@@ -80,7 +76,6 @@ public class UserServiceImpl implements UserService {
         try {
             authenticate(authenticationUser);
             String token = authenticationProvider.generateToken(authenticationUser.getUsername());
-            log.info("[UserService] Generated token for user: " + authenticationUser.getUsername());
             return new AuthenticatedUser(authenticationUser.getUsername(), token);
         } catch (AuthenticationException authenticationException) {
             throw new BadCredentialsException("Invalid username or password");

@@ -7,5 +7,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "security.jwt")
 public class JWTConfiguration {
 
-    private Long validTime;
+    private Long expiredTime = 180000L;
 }

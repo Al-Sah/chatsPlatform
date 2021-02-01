@@ -7,7 +7,6 @@ import com.aldevs.chatsplatform.forms.RegistrationUser;
 
 public interface UserService {
 
-    void validateUser(RegistrationUser saveUser);
     User saveUser(RegistrationUser saveUser);
     User findByUsername(String username);
     AuthenticatedUser loginUser(AuthenticationUser authenticationUser);

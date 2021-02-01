@@ -1,6 +1,6 @@
 package com.aldevs.chatsplatform.security;
 
-import com.aldevs.chatsplatform.config.JWTConfiguration;
+import com.aldevs.chatsplatform.config.jwt.JWTConfiguration;
 import com.aldevs.chatsplatform.exeption.TokenValidationException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -12,13 +12,15 @@ import java.security.Key;
 
 @Component
 @Slf4j
-public class JwtAuthenticationProvider {
+public class JwtProvider {
 
     private Key secretKey;
     private final Long validityTimeMls;
+    private final JwtParser jwtParser;
 
-    public JwtAuthenticationProvider(JWTConfiguration jwtConfiguration) {
+    public JwtProvider(JWTConfiguration jwtConfiguration, JwtParser jwtParser) {
         this.validityTimeMls = jwtConfiguration.getExpiredTime();
+        this.jwtParser = jwtParser;
     }
 
     @PostConstruct
@@ -38,12 +40,12 @@ public class JwtAuthenticationProvider {
     }
 
     public String extractUsername(String token) {
-        return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        return jwtParser.setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
     public void validateToken(String token) throws TokenValidationException {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            jwtParser.setSigningKey(secretKey).parseClaimsJws(token);
         } catch (JwtException | IllegalArgumentException e) {
             throw new TokenValidationException("Expired or invalid token");
         }

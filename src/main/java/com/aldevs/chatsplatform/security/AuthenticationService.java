@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
 
-    private final JwtAuthenticationProvider jwtProvider;
+    private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
 
-    public AuthenticationService(JwtAuthenticationProvider jwtProvider, UserRepository userRepository) {
+    public AuthenticationService(JwtProvider jwtProvider, UserRepository userRepository) {
         this.jwtProvider = jwtProvider;
         this.userRepository = userRepository;
     }
@@ -23,11 +23,8 @@ public class AuthenticationService implements AuthenticationUserDetailsService<P
     public UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken authenticationToken) throws UsernameNotFoundException {
         String token = authenticationToken.getName().substring(7);
         jwtProvider.validateToken(token);
-        try {
-            User user = userRepository.findByUsername(jwtProvider.extractUsername(token));
-            return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getRoles());
-        } catch (Exception e) {
-            throw new UsernameNotFoundException("User not found");
-        }
+        User user = userRepository.findByUsername(jwtProvider.extractUsername(token))
+                .orElseThrow( ()-> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getRoles());
     }
 }

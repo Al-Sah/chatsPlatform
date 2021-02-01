@@ -1,5 +1,6 @@
 package com.aldevs.chatsplatform.config;
 
+import com.aldevs.chatsplatform.config.jwt.JWTAuthenticationEntryPoint;
 import com.aldevs.chatsplatform.security.AuthenticationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,11 +1,10 @@
 package com.aldevs.chatsplatform.service.Implement;
 
 import com.aldevs.chatsplatform.entity.*;
-import com.aldevs.chatsplatform.exeption.DataValidationException;
 import com.aldevs.chatsplatform.exeption.UserExistException;
 import com.aldevs.chatsplatform.forms.*;
 import com.aldevs.chatsplatform.repository.UserRepository;
-import com.aldevs.chatsplatform.security.JwtAuthenticationProvider;
+import com.aldevs.chatsplatform.security.JwtProvider;
 import com.aldevs.chatsplatform.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,44 +14,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.Collections;
 
-
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtAuthenticationProvider authenticationProvider;
+    private final JwtProvider jwtProvider;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtAuthenticationProvider authenticationProvider) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationProvider = authenticationProvider;
+        this.jwtProvider = jwtProvider;
     }
     private void authenticate(AuthenticationUser authenticationUser){
-        String username = authenticationUser.getUsername();
-        User user = findByUsername(username);
-        if (user == null) {
-            throw new UsernameNotFoundException("User with username: " + username + " not found");
-        }
+        User user = findByUsername(authenticationUser.getUsername());
         if(!passwordEncoder.matches(authenticationUser.getPassword(), user.getPassword())){
             throw new BadCredentialsException("Invalid password");
         }
     }
 
     @Override
-    public void validateUser(RegistrationUser saveUser){
+    public User saveUser(RegistrationUser saveUser){
         if(userRepository.existsByUsername(saveUser.getUsername())){
             throw new UserExistException(saveUser.getUsername());
         }
-        if(saveUser.getPassword().length() < 8){
-            throw new DataValidationException("Small password");
-        }// TODO validator
-    }
-
-    @Override
-    public User saveUser(RegistrationUser saveUser){
-        validateUser(saveUser);
         var user = new User(
                 saveUser.getProfileName(),
                 saveUser.getUsername(),
@@ -68,14 +54,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username);
+        return userRepository.findByUsername(username)
+                .orElseThrow( ()-> new UsernameNotFoundException("User with username: " + username + " not found"));
     }
 
     @Override
     public AuthenticatedUser loginUser(AuthenticationUser authenticationUser) {
         try {
             authenticate(authenticationUser);
-            String token = authenticationProvider.generateToken(authenticationUser.getUsername());
+            String token = jwtProvider.generateToken(authenticationUser.getUsername());
             return new AuthenticatedUser(authenticationUser.getUsername(), token);
         } catch (AuthenticationException authenticationException) {
             throw new BadCredentialsException("Invalid username or password");

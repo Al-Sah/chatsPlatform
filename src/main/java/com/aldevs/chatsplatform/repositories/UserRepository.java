@@ -1,4 +1,4 @@
-package com.aldevs.chatsplatform.repository;
+package com.aldevs.chatsplatform.repositories;
 
 
 import com.aldevs.chatsplatform.entity.User;

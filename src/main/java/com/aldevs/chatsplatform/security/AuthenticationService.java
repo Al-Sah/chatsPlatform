@@ -1,7 +1,7 @@
 package com.aldevs.chatsplatform.security;
 
 import com.aldevs.chatsplatform.entity.User;
-import com.aldevs.chatsplatform.repository.UserRepository;
+import com.aldevs.chatsplatform.repositories.UserRepository;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

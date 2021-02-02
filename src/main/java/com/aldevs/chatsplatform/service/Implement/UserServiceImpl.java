@@ -2,8 +2,10 @@ package com.aldevs.chatsplatform.service.Implement;
 
 import com.aldevs.chatsplatform.entity.*;
 import com.aldevs.chatsplatform.exeption.UserExistException;
-import com.aldevs.chatsplatform.forms.*;
-import com.aldevs.chatsplatform.repository.UserRepository;
+import com.aldevs.chatsplatform.forms.auth.AuthenticatedUser;
+import com.aldevs.chatsplatform.forms.auth.AuthenticationUser;
+import com.aldevs.chatsplatform.forms.auth.RegistrationUser;
+import com.aldevs.chatsplatform.repositories.UserRepository;
 import com.aldevs.chatsplatform.security.JwtProvider;
 import com.aldevs.chatsplatform.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,10 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow( ()-> new UsernameNotFoundException("User with username: " + username + " not found"));
+    }
+    @Override
+    public boolean existByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 
     @Override

@@ -54,6 +54,11 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<messageErrorResponse> handleChatExistException(ChatExistException exception) {
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<messageErrorResponse> handleUserExistExceptionException(UserExistException exception) {
         return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
     }

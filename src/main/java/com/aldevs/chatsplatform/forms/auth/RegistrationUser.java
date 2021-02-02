@@ -1,4 +1,4 @@
-package com.aldevs.chatsplatform.forms;
+package com.aldevs.chatsplatform.forms.auth;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

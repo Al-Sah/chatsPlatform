@@ -1,4 +1,4 @@
-package com.aldevs.chatsplatform.forms;
+package com.aldevs.chatsplatform.forms.auth;
 
 import com.aldevs.chatsplatform.entity.User;
 import lombok.Data;

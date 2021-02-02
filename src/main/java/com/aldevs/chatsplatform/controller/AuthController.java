@@ -1,6 +1,9 @@
 package com.aldevs.chatsplatform.controller;
 
-import com.aldevs.chatsplatform.forms.*;
+import com.aldevs.chatsplatform.forms.auth.AuthenticatedUser;
+import com.aldevs.chatsplatform.forms.auth.AuthenticationUser;
+import com.aldevs.chatsplatform.forms.auth.RegistrationUser;
+import com.aldevs.chatsplatform.forms.auth.ResponseRegisterUser;
 import com.aldevs.chatsplatform.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

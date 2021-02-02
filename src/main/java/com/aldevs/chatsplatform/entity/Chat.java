@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @NoArgsConstructor
+@Table(name = "chats")
 public class Chat {
 
     @Id
@@ -16,10 +17,10 @@ public class Chat {
 
 
     @ElementCollection
-    @CollectionTable(name = "username", joinColumns = @JoinColumn(name = "chat_id"))
+    @CollectionTable(name = "chats_participants", joinColumns = @JoinColumn(name = "chat_id"))
     private List<String> participants;
 
-    //@Column("chat_uuid")
+    @Column(name = "chat_uuid")
     private String chatUUID;
     private String creator;
 

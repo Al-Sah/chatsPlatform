@@ -49,6 +49,11 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<messageErrorResponse> handleChatNotFoundException(ChatNotFoundException exception) {
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<messageErrorResponse> handleBadCredentialsException(BadCredentialsException exception) {
         return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
@@ -59,8 +64,18 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<messageErrorResponse> handleNotChatParticipantException(NotChatParticipantException exception) {
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<messageErrorResponse> handleUserExistExceptionException(UserExistException exception) {
         return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<messageErrorResponse> handleOtherRuntimeException(RuntimeException exception) {
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

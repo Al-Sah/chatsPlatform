@@ -13,4 +13,5 @@ public interface ChatsRepository extends JpaRepository<Chat, Long> {
     //boolean existsByParticipantsIn(List<String> participants);
     Optional<Chat> findByParticipantsIn(List<String> participants);
     Optional<Chat> findByChatUUID(String id);
+    boolean existsByChatUUID(String id);
 }

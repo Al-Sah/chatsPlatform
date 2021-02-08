@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
                 saveUser.getEmail(),
                 saveUser.getUserAbout(),
                 passwordEncoder.encode(saveUser.getPassword()),
-                Collections.singleton(Role.USER)
+                Collections.singleton(Role.ROLE_USER)
         );
         userRepository.save(user);
         log.info("User [ " + user.getUsername() + " ] registered successfully");

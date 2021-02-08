@@ -1,4 +1,4 @@
-package com.aldevs.chatsplatform.service;
+package com.aldevs.chatsplatform.forms.chat;
 
 import lombok.Data;
 

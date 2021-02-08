@@ -24,9 +24,12 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     public WebSecurity(AuthenticationService authService) {
         this.authService = authService;
+
     }
 
     private static final String AUTH_ENDPOINT = "/api/auth/**";
+    private static final String ADMIN_ENDPOINT = "/api/admin/**";
+    private static final String USER_ENDPOINT = "/api/user/**";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -38,6 +41,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 .and()
                     .authorizeRequests()
                     .antMatchers(AUTH_ENDPOINT).permitAll()
+                    .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
+                    .antMatchers(USER_ENDPOINT).hasAnyRole("USER","MODERATOR", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
                     .addFilter(authenticationFilter())

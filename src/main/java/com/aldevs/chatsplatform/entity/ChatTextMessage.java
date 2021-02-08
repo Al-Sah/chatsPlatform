@@ -26,13 +26,15 @@ public class ChatTextMessage {
     private String originalContent;
     private String author;
     private Date timestamp;
-    // TODO State (DELETED, DELIVERED, READ)
+    private MessageState state;
 
-    public ChatTextMessage(String chatUUID, String publicContent, String originalContent, String author, Date timestamp) {
+    public ChatTextMessage(String chatUUID, String messageUUID, String publicContent, String originalContent, String author, Date timestamp, MessageState state) {
         this.chatUUID = chatUUID;
+        this.messageUUID = messageUUID;
         this.publicContent = publicContent;
         this.originalContent = originalContent;
         this.author = author;
         this.timestamp = timestamp;
+        this.state = state;
     }
 }

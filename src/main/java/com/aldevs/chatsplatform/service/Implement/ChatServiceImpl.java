@@ -1,5 +1,6 @@
 package com.aldevs.chatsplatform.service.Implement;
 
+import com.aldevs.chatsplatform.Dtos.ChatDto;
 import com.aldevs.chatsplatform.Dtos.ChatTextMessageDto;
 import com.aldevs.chatsplatform.entity.*;
 import com.aldevs.chatsplatform.exeption.ChatExistException;
@@ -12,20 +13,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatServiceImpl implements ChatService {
 
     private final UserService userService;
     private final ChatsRepository chatsRepository;
-    private final ChatMessagesRepository messagesRepository;
     private final ChatPermissionsRepository permissionsRepository;
 
-    public ChatServiceImpl(UserService userService, ChatsRepository chatsRepository, ChatMessagesRepository messagesRepository, ChatPermissionsRepository permissionsRepository) {
+    public ChatServiceImpl(UserService userService, ChatsRepository chatsRepository, ChatPermissionsRepository permissionsRepository) {
         this.userService = userService;
         this.chatsRepository = chatsRepository;
-        this.messagesRepository = messagesRepository;
         this.permissionsRepository = permissionsRepository;
     }
 
@@ -35,10 +33,6 @@ public class ChatServiceImpl implements ChatService {
             throw new ChatExistException(optionalChatObject.get().getType().toString(), optionalChatObject.get().getChatUUID());
         }
         return new Chat(participants, chatUUID, ChatType.LOCAL_CHAT);
-    }
-
-    private ChatTextMessage getMessage(String chatUUID, String messageUUID){
-        return messagesRepository.findByChatUUIDAndMessageUUID(chatUUID, messageUUID).orElseThrow(()-> new ChatNotFoundException(chatUUID));
     }
 
     private void generatePermissionsForLocalChat(String id, String creator, String participant){
@@ -61,45 +55,19 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public ChatTextMessageDto sendMessage(UserDetails author, ChatTextMessageRequest message) {
-        ChatTextMessage chatTextMessage = new ChatTextMessage(
-                message.getChatUUID(),
-                UUID.randomUUID().toString(),
-                message.getContent(),
-                message.getContent(),
-                author.getUsername(),
-                new Date(),
-                MessageState.DELIVERED);
-        messagesRepository.save(chatTextMessage);
-        return new ChatTextMessageDto(chatTextMessage);
-    }
-
-    @Override
-    public ChatTextMessageDto editMessage(EditTextChatMessage message) {
-        ChatTextMessage textMessage = getMessage(message.getChatUUID(), message.getMessageUUID());
-        textMessage.setOriginalContent(message.getNewContent());
-        textMessage.setPublicContent(message.getNewContent()); // TODO content check
-        messagesRepository.save(textMessage);
-        return new ChatTextMessageDto(textMessage);
-    }
-
-    @Override
-    public ChatTextMessageDto deleteMessage(DeleteTextMessage message) {
-        ChatTextMessage textMessage = getMessage(message.getChatUUID(), message.getMessageUUID());
-        textMessage.setPublicContent("DELETED");
-        textMessage.setState(MessageState.DELETED);
-        messagesRepository.save(textMessage);
-        return new ChatTextMessageDto(textMessage);
-    }
-
-    @Override
-    public List<ChatTextMessageDto> getLastMessages(String chatUUID, String number) {
-        List<ChatTextMessageDto> messages; // TODO Page ?
+    public List<ChatDto> getPublicGroups() {
         return null;
     }
 
     @Override
-    public List<ChatTextMessageDto> getAllMessages(String chatUUID) {
-        return messagesRepository.findAllByChatUUID(chatUUID).stream().map(ChatTextMessageDto::new).collect(Collectors.toList());
+    public ChatDto getPublicGroup(UserDetails info, String chatUUID) {
+        return null;
     }
+
+    @Override
+    public ChatDto getPrivateGroup(UserDetails info, String chatUUID, String pswd) {
+        return null;
+    }
+
+
 }

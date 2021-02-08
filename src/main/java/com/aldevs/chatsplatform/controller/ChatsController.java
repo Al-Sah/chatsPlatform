@@ -1,21 +1,17 @@
 package com.aldevs.chatsplatform.controller;
 
-import com.aldevs.chatsplatform.Dtos.ChatTextMessageDto;
+import com.aldevs.chatsplatform.Dtos.ChatDto;
 import com.aldevs.chatsplatform.forms.chat.ChatCreationResponse;
-import com.aldevs.chatsplatform.forms.chat.ChatTextMessageRequest;
-import com.aldevs.chatsplatform.forms.chat.DeleteTextMessage;
 import com.aldevs.chatsplatform.service.ChatService;
-import com.aldevs.chatsplatform.forms.chat.EditTextChatMessage;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
+
 @RestController
-@RequestMapping("/api/user/chats")
+@RequestMapping("/api/chats")
 public class ChatsController {
 
     private final ChatService chatService;
@@ -24,44 +20,31 @@ public class ChatsController {
         this.chatService = chatService;
     }
 
-    @PostMapping("/")
-    @PreAuthorize("hasPermission(#message, @p.create())")
-    public ChatTextMessageDto saveTextMessage(@AuthenticationPrincipal UserDetails info, @RequestBody @Valid ChatTextMessageRequest message){
-        return chatService.sendMessage(info, message);
-    }
-
-
-    @PutMapping("/")
-    @PreAuthorize("hasPermission(#message, @p.update())")
-    public ChatTextMessageDto editTextMessage(@RequestBody @Valid EditTextChatMessage message){
-        return chatService.editMessage(message);
-    }
-
-
-    @DeleteMapping("/")
-    @PreAuthorize("hasPermission(#message, @p.delete())")
-    public ChatTextMessageDto deleteTextMessage(@RequestBody @Valid DeleteTextMessage message){
-        return chatService.deleteMessage(message);
-    }
-
-    @GetMapping("/{chat}/{number}")
-    @PreAuthorize("hasPermission(#chat, @p.read())")
-    public List<ChatTextMessageDto> getLastMessages(@PathVariable String number, @PathVariable String chat){
-        return chatService.getLastMessages(chat, number);
+    @PostMapping("/local")
+    public ChatCreationResponse createLocalChat(@AuthenticationPrincipal UserDetails info, @RequestParam String participant){
+        return chatService.createChat(info, participant);
     }
 
     @GetMapping("/{chat}")
-    @PreAuthorize("hasPermission(#chat, @p.read())")
-    public List<ChatTextMessageDto> getAllMessages(@PathVariable String chat){
-        return chatService.getAllMessages(chat);
+    public ChatDto viewChat(@PathVariable("chat") String chatUUID){
+        //return chatService.findChatByUUID(chatUUID);
+        return null;
+    }
+
+    @GetMapping("/list")
+    public List<ChatDto> getPublicGroups(){
+        return chatService.getPublicGroups();
+    }
+
+    @PostMapping("/join/{chat}")
+    public ChatDto joinPublicGroup(@AuthenticationPrincipal UserDetails info, @PathVariable("chat") String chatUUID){
+        return chatService.getPublicGroup(info, chatUUID);
     }
 
 
-
-    @PostMapping("/new")
-    public ChatCreationResponse createChat(@AuthenticationPrincipal UserDetails userDetails,
-                                           @RequestParam String participant){
-        return chatService.createChat(userDetails, participant);
+    @PostMapping("/join/")
+    public ChatDto joinPrivateGroup(@AuthenticationPrincipal UserDetails info, @RequestParam("chat") String chatUUID, @RequestParam("pswd") String pswd){
+        return chatService.getPrivateGroup(info, chatUUID, pswd);
     }
 
 }

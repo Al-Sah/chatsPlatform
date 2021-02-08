@@ -1,10 +1,7 @@
 package com.aldevs.chatsplatform.service;
 
-import com.aldevs.chatsplatform.Dtos.ChatTextMessageDto;
+import com.aldevs.chatsplatform.Dtos.ChatDto;
 import com.aldevs.chatsplatform.forms.chat.ChatCreationResponse;
-import com.aldevs.chatsplatform.forms.chat.ChatTextMessageRequest;
-import com.aldevs.chatsplatform.forms.chat.DeleteTextMessage;
-import com.aldevs.chatsplatform.forms.chat.EditTextChatMessage;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -12,9 +9,7 @@ import java.util.List;
 public interface ChatService {
 
     ChatCreationResponse createChat(UserDetails creator, String participant);
-    ChatTextMessageDto sendMessage(UserDetails author, ChatTextMessageRequest message);
-    ChatTextMessageDto editMessage(EditTextChatMessage message);
-    ChatTextMessageDto deleteMessage(DeleteTextMessage message);
-    List<ChatTextMessageDto> getLastMessages(String chat, String number);
-    List<ChatTextMessageDto> getAllMessages(String chat);
+    List<ChatDto> getPublicGroups();
+    ChatDto getPublicGroup(UserDetails info, String chatUUID);
+    ChatDto getPrivateGroup(UserDetails info, String chatUUID, String pswd);
 }

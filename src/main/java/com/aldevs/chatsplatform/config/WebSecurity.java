@@ -29,7 +29,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private static final String AUTH_ENDPOINT = "/api/auth/**";
     private static final String ADMIN_ENDPOINT = "/api/admin/**";
-    private static final String USER_ENDPOINT = "/api/user/**";
+    private static final String USER_ENDPOINT = "/api/**";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {

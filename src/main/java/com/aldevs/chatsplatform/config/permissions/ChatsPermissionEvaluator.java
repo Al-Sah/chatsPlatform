@@ -25,13 +25,19 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
     private final ChatPermissionsRepository permissionsRepository;
     private final ChatsRepository chatsRepository;
     private final ChatMessagesRepository messagesRepository;
-    private final PermissionRegistry crud;
+    private final PermissionRegistry.MessagePermissionRegistry mpr;
+    private final PermissionRegistry.ChatPermissionRegistry cpr;
 
-    public ChatsPermissionEvaluator(ChatPermissionsRepository permissionsRepository, ChatsRepository chatsRepository, ChatMessagesRepository messagesRepository, PermissionRegistry permissionRegistry) {
+    public ChatsPermissionEvaluator(
+            ChatPermissionsRepository permissionsRepository,
+            ChatsRepository chatsRepository, ChatMessagesRepository messagesRepository,
+            PermissionRegistry.MessagePermissionRegistry mpr,
+            PermissionRegistry.ChatPermissionRegistry cpr) {
         this.permissionsRepository = permissionsRepository;
         this.chatsRepository = chatsRepository;
         this.messagesRepository = messagesRepository;
-        this.crud = permissionRegistry;
+        this.mpr = mpr;
+        this.cpr = cpr;
     }
 
     private final Set<ChatPermission> rolesSet = new HashSet<>(Arrays.asList(
@@ -53,6 +59,8 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
 
     @Override
     public boolean hasPermission(Authentication authentication, Object target, Object permission) {
+        if(!(permission instanceof PermissionRegistry.MessagePermissionRegistry)) return false;
+
         String chatUUID = getChatUUID(target), currentUsername = authentication.getName();
         if(!chatsRepository.existsByChatUUID(chatUUID)) throw new ChatNotFoundException(chatUUID);
 
@@ -62,18 +70,18 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
         Set<ChatPermission> userPermission = permissionsRepository.findByChatUUIDAndUsername(chatUUID,currentUsername)
                 .orElseThrow(()->new RuntimeException("User dont have any permission in chat")).getParticipantPermissions();
 
-        if(permission.equals(crud.create())) {
+        if(permission.equals(mpr.create())) {
             return (userPermission.contains(ChatPermission.SEND_MESSAGES) || !Collections.disjoint(userPermission, rolesSet));
         }
-        else if( permission.equals(crud.read())){
+        else if( permission.equals(mpr.read())){
             return (userPermission.contains(ChatPermission.READ_MESSAGES) || !Collections.disjoint(userPermission, rolesSet));
         }
-        else if(permission.equals(crud.update())){
+        else if(permission.equals(mpr.update())){
             if(currentUsername.equals(getMessageAuthor(chatUUID, ((EditTextChatMessage)target).getMessageUUID()))){
                 return (userPermission.contains(ChatPermission.EDIT_MESSAGES)) || !Collections.disjoint(userPermission, rolesSet);
             }else return (userPermission.contains(ChatPermission.EDIT_NOT_MINE_MESSAGES) || !Collections.disjoint(userPermission, sudoSet));
         }
-        else if(permission.equals(crud.delete())){
+        else if(permission.equals(mpr.delete())){
             if(currentUsername.equals(getMessageAuthor(chatUUID, ((DeleteTextMessage)target).getMessageUUID()))){
                 return (userPermission.contains(ChatPermission.DELETE_MESSAGES)) || !Collections.disjoint(userPermission, rolesSet);
             }else return (userPermission.contains(ChatPermission.DELETE_NOT_MINE_MESSAGES) || !Collections.disjoint(userPermission, sudoSet));

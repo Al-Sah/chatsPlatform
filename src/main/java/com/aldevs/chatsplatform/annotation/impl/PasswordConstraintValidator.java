@@ -1,5 +1,6 @@
-package com.aldevs.chatsplatform.annotation;
+package com.aldevs.chatsplatform.annotation.impl;
 
+import com.aldevs.chatsplatform.annotation.ChatsPlatformPassword;
 import org.passay.*;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

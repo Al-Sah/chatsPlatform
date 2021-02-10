@@ -3,6 +3,7 @@ package com.aldevs.chatsplatform.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 @Data
 @Entity
@@ -21,10 +22,17 @@ public class Chat {
     @Column(name = "chat_uuid")
     private String chatUUID;
     private ChatType type;
+    @Column(name = "creation_date")
+    private Date creationDate;
+    private String description;
+    private String password;
 
-    public Chat(List<String> participants, String chatUUID, ChatType type) {
+    public Chat(List<String> participants, String chatUUID, ChatType type, Date creationDate, String description, String password) {
         this.participants = participants;
         this.chatUUID = chatUUID;
         this.type = type;
+        this.creationDate = creationDate;
+        this.description = description;
+        this.password = password;
     }
 }

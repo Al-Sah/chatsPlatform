@@ -22,31 +22,31 @@ public class MessagesController {
     }
 
     @PostMapping("/")
-    @PreAuthorize("hasPermission(#message, @p.create())")
+    @PreAuthorize("hasPermission(#message, @mpr.create())")
     public ChatTextMessageDto saveTextMessage(@AuthenticationPrincipal UserDetails info, @RequestBody @Valid ChatTextMessageRequest message){
         return messageService.sendMessage(info, message);
     }
 
     @PutMapping("/")
-    @PreAuthorize("hasPermission(#message, @p.update())")
+    @PreAuthorize("hasPermission(#message, @mpr.update())")
     public ChatTextMessageDto editTextMessage(@RequestBody @Valid EditTextChatMessage message){
         return messageService.editMessage(message);
     }
 
     @DeleteMapping("/")
-    @PreAuthorize("hasPermission(#message, @p.delete())")
+    @PreAuthorize("hasPermission(#message, @mpr.delete())")
     public ChatTextMessageDto deleteTextMessage(@RequestBody @Valid DeleteTextMessage message){
         return messageService.deleteMessage(message);
     }
 
     @GetMapping("/{chat}/{number}")
-    @PreAuthorize("hasPermission(#chat, @p.read())")
+    @PreAuthorize("hasPermission(#chat, @mpr.read())")
     public List<ChatTextMessageDto> getLastMessages(@PathVariable String number, @PathVariable String chat){
         return messageService.getLastMessages(chat, number);
     }
 
     @GetMapping("/{chat}")
-    @PreAuthorize("hasPermission(#chat, @p.read())")
+    @PreAuthorize("hasPermission(#chat, @mpr.read())")
     public List<ChatTextMessageDto> getAllMessages(@PathVariable String chat){
         return messageService.getAllMessages(chat);
     }

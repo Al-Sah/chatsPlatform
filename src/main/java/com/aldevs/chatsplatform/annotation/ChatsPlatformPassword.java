@@ -1,5 +1,7 @@
 package com.aldevs.chatsplatform.annotation;
 
+import com.aldevs.chatsplatform.annotation.impl.PasswordConstraintValidator;
+
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Retention;

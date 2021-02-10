@@ -14,10 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Component
 public class ChatsPermissionEvaluator implements PermissionEvaluator {
@@ -25,19 +22,11 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
     private final ChatPermissionsRepository permissionsRepository;
     private final ChatsRepository chatsRepository;
     private final ChatMessagesRepository messagesRepository;
-    private final PermissionRegistry.MessagePermissionRegistry mpr;
-    private final PermissionRegistry.ChatPermissionRegistry cpr;
 
-    public ChatsPermissionEvaluator(
-            ChatPermissionsRepository permissionsRepository,
-            ChatsRepository chatsRepository, ChatMessagesRepository messagesRepository,
-            PermissionRegistry.MessagePermissionRegistry mpr,
-            PermissionRegistry.ChatPermissionRegistry cpr) {
+    public ChatsPermissionEvaluator(ChatPermissionsRepository permissionsRepository, ChatsRepository chatsRepository, ChatMessagesRepository messagesRepository) {
         this.permissionsRepository = permissionsRepository;
         this.chatsRepository = chatsRepository;
         this.messagesRepository = messagesRepository;
-        this.mpr = mpr;
-        this.cpr = cpr;
     }
 
     private final Set<ChatPermission> rolesSet = new HashSet<>(Arrays.asList(
@@ -57,10 +46,7 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
         return messagesRepository.findByChatUUIDAndMessageUUID(chatUUID, messageUUID).orElseThrow(RuntimeException::new).getAuthor();
     }
 
-    @Override
-    public boolean hasPermission(Authentication authentication, Object target, Object permission) {
-        if(!(permission instanceof PermissionRegistry.MessagePermissionRegistry)) return false;
-
+    private boolean hasPermissionMessageAction(Authentication authentication, Object target, PermissionRegistry.Action permission){
         String chatUUID = getChatUUID(target), currentUsername = authentication.getName();
         if(!chatsRepository.existsByChatUUID(chatUUID)) throw new ChatNotFoundException(chatUUID);
 
@@ -70,23 +56,38 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
         Set<ChatPermission> userPermission = permissionsRepository.findByChatUUIDAndUsername(chatUUID,currentUsername)
                 .orElseThrow(()->new RuntimeException("User dont have any permission in chat")).getParticipantPermissions();
 
-        if(permission.equals(mpr.create())) {
+        if(permission.equals(PermissionRegistry.Action.CREATE)) {
             return (userPermission.contains(ChatPermission.SEND_MESSAGES) || !Collections.disjoint(userPermission, rolesSet));
         }
-        else if( permission.equals(mpr.read())){
+        else if( permission.equals(PermissionRegistry.Action.READ)){
             return (userPermission.contains(ChatPermission.READ_MESSAGES) || !Collections.disjoint(userPermission, rolesSet));
         }
-        else if(permission.equals(mpr.update())){
+        else if(permission.equals(PermissionRegistry.Action.UPDATE)){
             if(currentUsername.equals(getMessageAuthor(chatUUID, ((EditTextChatMessage)target).getMessageUUID()))){
                 return (userPermission.contains(ChatPermission.EDIT_MESSAGES)) || !Collections.disjoint(userPermission, rolesSet);
-            }else return (userPermission.contains(ChatPermission.EDIT_NOT_MINE_MESSAGES) || !Collections.disjoint(userPermission, sudoSet));
+            }
+            else return (userPermission.contains(ChatPermission.EDIT_NOT_MINE_MESSAGES) || !Collections.disjoint(userPermission, sudoSet));
         }
-        else if(permission.equals(mpr.delete())){
+        else if(permission.equals(PermissionRegistry.Action.DELETE)){
             if(currentUsername.equals(getMessageAuthor(chatUUID, ((DeleteTextMessage)target).getMessageUUID()))){
                 return (userPermission.contains(ChatPermission.DELETE_MESSAGES)) || !Collections.disjoint(userPermission, rolesSet);
-            }else return (userPermission.contains(ChatPermission.DELETE_NOT_MINE_MESSAGES) || !Collections.disjoint(userPermission, sudoSet));
+            }
+            else return (userPermission.contains(ChatPermission.DELETE_NOT_MINE_MESSAGES) || !Collections.disjoint(userPermission, sudoSet));
         }
         return false;
+    }
+
+    @Override
+    public boolean hasPermission(Authentication authentication, Object target, Object permission) {
+        if(permission instanceof PermissionRegistry.PermissionPair) {
+            if(((PermissionRegistry.PermissionPair) permission).getTarget().equals(PermissionRegistry.Target.MESSAGE)){
+                return hasPermissionMessageAction(authentication,target, ((PermissionRegistry.PermissionPair) permission).getAction());
+            }else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     @Override

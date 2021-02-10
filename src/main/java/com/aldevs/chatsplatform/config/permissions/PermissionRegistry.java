@@ -1,47 +1,62 @@
 package com.aldevs.chatsplatform.config.permissions;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.springframework.stereotype.Component;
 
-@Component("p")
 public class PermissionRegistry {
 
-    protected static final String CREATE = "CREATE";
-    protected static final String READ = "READ";
-    protected static final String UPDATE = "UPDATE";
-    protected static final String DELETE = "DELETE";
+    public enum Action {
+        CREATE,
+        READ,
+        UPDATE,
+        DELETE,
+        JOIN
+    }
+    public enum Target {
+        CHAT,
+        MESSAGE
+    }
 
-
+    @Data
+    @AllArgsConstructor
+    public static class PermissionPair {
+        private Target target;
+        private Action action;
+    }
 
     @Component("mpr")
-    public static class MessagePermissionRegistry {
-        public String create() {
-            return CREATE;
+    protected static class MessagePermissionRegistry {
+        public PermissionPair create() {
+            return new PermissionPair(Target.MESSAGE, Action.CREATE);
         }
-        public String read() {
-            return READ;
+        public PermissionPair read() {
+            return new PermissionPair(Target.MESSAGE, Action.READ);
         }
-        public String update() {
-            return UPDATE;
+        public PermissionPair update() {
+            return new PermissionPair(Target.MESSAGE, Action.UPDATE);
         }
-        public String delete() {
-            return DELETE;
+        public PermissionPair delete() {
+            return new PermissionPair(Target.MESSAGE, Action.DELETE);
         }
     }
 
     @Component("cpr")
-    public static class ChatPermissionRegistry {
-        public String create() {
-            return CREATE;
+    protected static class ChatPermissionRegistry {
+        public PermissionPair create() {
+            return new PermissionPair(Target.CHAT, Action.CREATE);
         }
-        public String read() {
-            return READ;
+        public PermissionPair read() {
+            return new PermissionPair(Target.CHAT, Action.READ);
         }
-        public String update() {
-            return UPDATE;
+        public PermissionPair update() {
+            return new PermissionPair(Target.CHAT, Action.READ);
         }
-        public String delete() {
-            return DELETE;
+        public PermissionPair delete() {
+            return new PermissionPair(Target.CHAT, Action.DELETE);
+        }
+        public PermissionPair join() {
+            return new PermissionPair(Target.CHAT, Action.JOIN);
         }
     }
-
 }

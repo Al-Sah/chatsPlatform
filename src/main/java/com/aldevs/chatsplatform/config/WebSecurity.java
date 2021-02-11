@@ -29,7 +29,8 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     private static final String AUTH_ENDPOINT = "/api/auth/**";
     private static final String ADMIN_ENDPOINT = "/api/admin/**";
-    private static final String USER_ENDPOINT = "/api/**";
+    private static final String USER_ENDPOINT = "/api/app/**";
+    private static final String DICTIONARY_ENDPOINT = "/api/dictionary/**";
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -43,6 +44,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                     .antMatchers(AUTH_ENDPOINT).permitAll()
                     .antMatchers(ADMIN_ENDPOINT).hasRole("ADMIN")
                     .antMatchers(USER_ENDPOINT).hasAnyRole("USER","MODERATOR", "ADMIN")
+                    .antMatchers(DICTIONARY_ENDPOINT).hasAnyRole("MODERATOR", "ADMIN")
                     .anyRequest().authenticated()
                 .and()
                     .addFilter(authenticationFilter())

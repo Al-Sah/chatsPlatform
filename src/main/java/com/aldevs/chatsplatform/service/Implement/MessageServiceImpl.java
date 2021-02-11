@@ -8,6 +8,7 @@ import com.aldevs.chatsplatform.forms.chat.ChatTextMessageRequest;
 import com.aldevs.chatsplatform.forms.chat.DeleteTextMessage;
 import com.aldevs.chatsplatform.forms.chat.EditTextChatMessage;
 import com.aldevs.chatsplatform.repositories.ChatMessagesRepository;
+import com.aldevs.chatsplatform.service.DictionaryService;
 import com.aldevs.chatsplatform.service.MessageService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,11 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl implements MessageService {
 
     private final ChatMessagesRepository messagesRepository;
+    private final DictionaryService dictionaryService;
 
-    public MessageServiceImpl(ChatMessagesRepository messagesRepository) {
+    public MessageServiceImpl(ChatMessagesRepository messagesRepository, DictionaryService dictionaryService) {
         this.messagesRepository = messagesRepository;
+        this.dictionaryService = dictionaryService;
     }
 
     private ChatTextMessage getMessage(String chatUUID, String messageUUID){
@@ -35,7 +38,7 @@ public class MessageServiceImpl implements MessageService {
         ChatTextMessage chatTextMessage = new ChatTextMessage(
                 message.getChatUUID(),
                 UUID.randomUUID().toString(),
-                message.getContent(),
+                dictionaryService.validateContent(message.getContent()),
                 message.getContent(),
                 author.getUsername(),
                 new Date(),

@@ -61,6 +61,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto joinPrivateGroup(UserDetails info, String chatUUID, String pswd) {
+        // TODO Is group part
         Chat group = chatsRepository.findByChatUUIDAndType(chatUUID, ChatType.PRIVATE_GROUP).orElseThrow(()-> new ChatNotFoundException(chatUUID));
         if(group.getPassword().equals(pswd)){
             group.getParticipants().add(info.getUsername());
@@ -72,13 +73,23 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto createGroup(UserDetails info, GroupCreationForm form) {
+        String currentUser = info.getUsername();
         String chatUUID = UUID.randomUUID().toString();
-        //TODO logic !!!
-        var chat = new Chat(form.getParticipants(), chatUUID, ChatType.PUBLIC_GROUP, new Date(), form.getDescription(), form.getIsPrivate() ? form.getPassword() : "");
-        permissionsRepository.save(new ChatUsersPermissions(chatUUID, info.getUsername(), Collections.singleton(ChatPermission.GROUP_CHAT_CREATOR)));
-        form.getParticipants().add(info.getUsername());
-        form.getParticipants().forEach(p-> permissionsRepository.save(new ChatUsersPermissions(chatUUID, p, Collections.singleton(ChatPermission.CHAT_BASIC))));
+
+        List<String> participants = form.getParticipants();
+        participants.add(currentUser);
+
+        var chat = new Chat(
+                participants,
+                chatUUID,
+                form.getIsPrivate() ? ChatType.PRIVATE_GROUP : ChatType.PUBLIC_GROUP,
+                new Date(),
+                form.getDescription(),
+                form.getIsPrivate() ? form.getPassword() : "");
         chatsRepository.save(chat);
+
+        permissionsRepository.save(new ChatUsersPermissions(chatUUID, currentUser, Collections.singleton(ChatPermission.GROUP_CHAT_CREATOR)));
+        participants.forEach(p-> permissionsRepository.save(new ChatUsersPermissions(chatUUID, p, Collections.singleton(ChatPermission.CHAT_BASIC))));
         return new ChatDto(chat);
     }
 

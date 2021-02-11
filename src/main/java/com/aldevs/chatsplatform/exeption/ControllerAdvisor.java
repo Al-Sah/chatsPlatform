@@ -54,12 +54,22 @@ public class ControllerAdvisor extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<messageErrorResponse> handleDictionaryWordNotFoundException(DictionaryWordNotFound exception) {
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<messageErrorResponse> handleBadCredentialsException(BadCredentialsException exception) {
         return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
     public ResponseEntity<messageErrorResponse> handleChatExistException(ChatExistException exception) {
+        return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<messageErrorResponse> handleDictionaryWordExistsException(DictionaryWordExists exception) {
         return new ResponseEntity<>(new messageErrorResponse(exception.getMessage()), HttpStatus.FORBIDDEN);
     }
 

@@ -10,6 +10,5 @@ public interface DictionaryService {
     DictionaryWordForm add(String word);
     DictionaryWordForm edit(String oldWord,  String newWord);
     void delete(String word);
-    String validateContent(String content);
 
 }

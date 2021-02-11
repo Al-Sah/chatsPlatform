@@ -5,6 +5,7 @@ import com.aldevs.chatsplatform.exeption.DictionaryWordExists;
 import com.aldevs.chatsplatform.exeption.DictionaryWordNotFound;
 import com.aldevs.chatsplatform.forms.DictionaryWordForm;
 import com.aldevs.chatsplatform.repositories.DictionaryWordsRepository;
+import com.aldevs.chatsplatform.service.ContentManager;
 import com.aldevs.chatsplatform.service.DictionaryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,10 @@ import java.util.stream.Collectors;
 public class DictionaryServiceImpl implements DictionaryService {
 
     private final DictionaryWordsRepository dictionaryWordsRepository;
-    public DictionaryServiceImpl(DictionaryWordsRepository dictionaryWordsRepository) {
+    private final ContentManager contentManager;
+    public DictionaryServiceImpl(DictionaryWordsRepository dictionaryWordsRepository, ContentManager contentManager) {
         this.dictionaryWordsRepository = dictionaryWordsRepository;
+        this.contentManager = contentManager;
     }
 
     @Override
@@ -33,8 +36,8 @@ public class DictionaryServiceImpl implements DictionaryService {
         }else {
             dictionaryWordsRepository.save(new DictionaryWord(word));
         }
+        contentManager.updateMessagesDB();
         return new DictionaryWordForm(word);
-        // TODO validate DB
     }
 
     @Override
@@ -46,8 +49,8 @@ public class DictionaryServiceImpl implements DictionaryService {
         }else {
             throw new DictionaryWordNotFound(oldWord);
         }
+        contentManager.updateMessagesDB();
         return new DictionaryWordForm(newWord);
-        // TODO validate DB
     }
 
     @Override
@@ -58,15 +61,6 @@ public class DictionaryServiceImpl implements DictionaryService {
         }else {
             throw new DictionaryWordNotFound(word);
         }
-        // TODO validate DB
-    }
-
-    @Override
-    public String validateContent(String content) {
-        List<DictionaryWord> badWords = dictionaryWordsRepository.findAll();
-        for (var el: badWords) {
-            content = content.replace(el.getWord(), "#");
-        }
-        return content;
+        contentManager.updateMessagesDB();
     }
 }

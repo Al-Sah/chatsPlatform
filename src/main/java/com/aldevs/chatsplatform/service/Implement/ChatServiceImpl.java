@@ -1,6 +1,7 @@
 package com.aldevs.chatsplatform.service.Implement;
 
 import com.aldevs.chatsplatform.Dtos.ChatDto;
+import com.aldevs.chatsplatform.Dtos.ChatUsersPermissionsDto;
 import com.aldevs.chatsplatform.entity.Chat;
 import com.aldevs.chatsplatform.entity.ChatPermission;
 import com.aldevs.chatsplatform.entity.ChatType;
@@ -8,6 +9,7 @@ import com.aldevs.chatsplatform.entity.ChatUsersPermissions;
 import com.aldevs.chatsplatform.exeption.ChatExistException;
 import com.aldevs.chatsplatform.exeption.ChatNotFoundException;
 import com.aldevs.chatsplatform.forms.chat.GroupCreationForm;
+import com.aldevs.chatsplatform.forms.chat.SetPermissionsForm;
 import com.aldevs.chatsplatform.repositories.ChatPermissionsRepository;
 import com.aldevs.chatsplatform.repositories.ChatsRepository;
 import com.aldevs.chatsplatform.service.ChatService;
@@ -120,4 +122,33 @@ public class ChatServiceImpl implements ChatService {
         permissionsRepository.deleteAllByChatUUID(chatUUID);
         chatsRepository.deleteByChatUUID(chatUUID);
     }
+
+
+    @Override
+    public ChatUsersPermissionsDto setPermissions(SetPermissionsForm form) {
+        ChatUsersPermissions currentPermissions = permissionsRepository
+                .findByChatUUIDAndUsername(form.getChatUUID(), form.getUsername()).orElseThrow(); // TODO
+
+        Set<ChatPermission> newPermissions = new HashSet<>();
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String parsingResult;
+        for (String permission : form.getPermissions()) {
+            try {
+                newPermissions.add(ChatPermission.valueOf(permission));
+            } catch (IllegalArgumentException e) {
+                stringBuilder.append(e.getMessage());
+            }
+        }if(newPermissions.contains(ChatPermission.GROUP_CHAT_CREATOR)){
+            throw new RuntimeException("You cannot set 'creator' permission");
+        }
+        parsingResult = stringBuilder.toString();
+        if(!parsingResult.isEmpty()){
+            throw new RuntimeException(parsingResult); // TODO normal Exception
+        }
+        currentPermissions.setParticipantPermissions(newPermissions);
+        permissionsRepository.save(currentPermissions);
+        return new ChatUsersPermissionsDto(currentPermissions);
+    }
+
 }

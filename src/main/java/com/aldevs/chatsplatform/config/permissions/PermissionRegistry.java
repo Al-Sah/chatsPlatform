@@ -12,7 +12,8 @@ public class PermissionRegistry {
         UPDATE,
         DELETE,
         JOIN,
-        LEAVE
+        LEAVE,
+        SETUP,
     }
     public enum Target {
         CHAT,
@@ -44,8 +45,8 @@ public class PermissionRegistry {
 
     @Component("cpr")
     protected static class ChatPermissionRegistry {
-        public PermissionPair create() {
-            return new PermissionPair(Target.CHAT, Action.CREATE);
+        public PermissionPair set() {
+            return new PermissionPair(Target.CHAT, Action.SETUP);
         }
         public PermissionPair read() {
             return new PermissionPair(Target.CHAT, Action.READ);

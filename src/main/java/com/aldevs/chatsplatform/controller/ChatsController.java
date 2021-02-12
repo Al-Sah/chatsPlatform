@@ -1,8 +1,10 @@
 package com.aldevs.chatsplatform.controller;
 
 import com.aldevs.chatsplatform.Dtos.ChatDto;
+import com.aldevs.chatsplatform.Dtos.ChatUsersPermissionsDto;
 import com.aldevs.chatsplatform.forms.chat.CreationLocalChat;
 import com.aldevs.chatsplatform.forms.chat.GroupCreationForm;
+import com.aldevs.chatsplatform.forms.chat.SetPermissionsForm;
 import com.aldevs.chatsplatform.service.ChatService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -70,6 +72,12 @@ public class ChatsController {
     @PreAuthorize("hasPermission(#chatUUID, @cpr.delete())")
     public void deleteChat(@RequestParam("chat") String chatUUID){
         chatService.deleteChat(chatUUID);
+    }
+
+    @PutMapping("/permissions")
+    @PreAuthorize("hasPermission(#form.chatUUID, @cpr.set())")
+    public ChatUsersPermissionsDto setPermissions(@RequestBody @Valid SetPermissionsForm form){
+        return chatService.setPermissions(form);
     }
 
 }

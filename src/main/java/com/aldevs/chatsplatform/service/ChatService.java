@@ -1,7 +1,9 @@
 package com.aldevs.chatsplatform.service;
 
 import com.aldevs.chatsplatform.Dtos.ChatDto;
+import com.aldevs.chatsplatform.Dtos.ChatUsersPermissionsDto;
 import com.aldevs.chatsplatform.forms.chat.GroupCreationForm;
+import com.aldevs.chatsplatform.forms.chat.SetPermissionsForm;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
@@ -22,5 +24,6 @@ public interface ChatService {
 
     List<ChatDto> getMineGroups(UserDetails info);
 
+    ChatUsersPermissionsDto setPermissions(SetPermissionsForm form);
 
 }

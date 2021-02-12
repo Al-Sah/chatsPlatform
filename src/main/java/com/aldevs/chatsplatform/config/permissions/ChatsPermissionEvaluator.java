@@ -34,6 +34,9 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
     private final Set<ChatPermission> sudoSet = new HashSet<>(Arrays.asList(
             ChatPermission.GROUP_CHAT_ADMIN, ChatPermission.GROUP_CHAT_CREATOR));
 
+    private final Set<ChatPermission> setupSet = new HashSet<>(Arrays.asList(
+            ChatPermission.SET_USER_AS_SIMPLE_PARTICIPANT, ChatPermission.SET_USER_AS_ADMIN));
+
     private String getChatUUID(Object target){
         if(target instanceof ChatTextMessageRequest) return ((ChatTextMessageRequest) target).getChatUUID();
         if(target instanceof EditTextChatMessage) return  ((EditTextChatMessage)target).getChatUUID();
@@ -105,6 +108,8 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
             if(chat.getType().equals(ChatType.LOCAL_CHAT)){
                 return true;
             } else return userPermission.contains(ChatPermission.GROUP_CHAT_CREATOR); // ??
+        }else if(permission.equals(PermissionRegistry.Action.SETUP)){
+            return (userPermission.contains(ChatPermission.GROUP_CHAT_CREATOR) || !Collections.disjoint(userPermission, setupSet));
         }
         return false;
     }

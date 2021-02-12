@@ -33,16 +33,29 @@ public class MessagesController {
         return messageService.editMessage(message);
     }
 
+    @PutMapping("/recover")
+    @PreAuthorize("hasPermission(#message, @mpr.delete())")
+    public ChatTextMessageDto recoverTextMessage(@RequestBody @Valid DeleteTextMessage message){
+        return messageService.recoverMessage(message);
+    }
+
     @DeleteMapping("/")
     @PreAuthorize("hasPermission(#message, @mpr.delete())")
     public ChatTextMessageDto deleteTextMessage(@RequestBody @Valid DeleteTextMessage message){
         return messageService.deleteMessage(message);
     }
 
-    @GetMapping("/{chat}/{number}")
+
+    @GetMapping("/{chat}/20")
     @PreAuthorize("hasPermission(#chat, @mpr.read())")
-    public List<ChatTextMessageDto> getLastMessages(@PathVariable String number, @PathVariable String chat){
-        return messageService.getLastMessages(chat, number);
+    public List<ChatTextMessageDto> getLastMessages(@PathVariable String chat){
+        return messageService.getLast20Messages(chat);
+    }
+
+    @GetMapping("/{chat}/page/{page}")
+    @PreAuthorize("hasPermission(#chat, @mpr.read())")
+    public List<ChatTextMessageDto> getMessagesPage(@PathVariable String chat, @PathVariable String page){
+        return messageService.getMessagesPage(chat, page);
     }
 
     @GetMapping("/{chat}")

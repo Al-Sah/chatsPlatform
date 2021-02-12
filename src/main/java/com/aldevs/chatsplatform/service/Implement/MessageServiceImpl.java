@@ -4,13 +4,16 @@ import com.aldevs.chatsplatform.Dtos.ChatTextMessageDto;
 import com.aldevs.chatsplatform.entity.ChatTextMessage;
 import com.aldevs.chatsplatform.entity.MessageState;
 import com.aldevs.chatsplatform.exeption.ChatNotFoundException;
+import com.aldevs.chatsplatform.exeption.DeletedMessageException;
 import com.aldevs.chatsplatform.forms.chat.ChatTextMessageRequest;
 import com.aldevs.chatsplatform.forms.chat.DeleteTextMessage;
 import com.aldevs.chatsplatform.forms.chat.EditTextChatMessage;
 import com.aldevs.chatsplatform.repositories.ChatMessagesRepository;
 import com.aldevs.chatsplatform.service.ContentManager;
-import com.aldevs.chatsplatform.service.DictionaryService;
 import com.aldevs.chatsplatform.service.MessageService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -51,8 +54,12 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public ChatTextMessageDto editMessage(EditTextChatMessage message) {
         ChatTextMessage textMessage = getMessage(message.getChatUUID(), message.getMessageUUID());
+        if(textMessage.getState().equals(MessageState.DELETED)){
+            throw new DeletedMessageException("You cannot modify 'Deleted' message ");
+        }
+        textMessage.setState(MessageState.EDITED);
         textMessage.setOriginalContent(message.getNewContent());
-        textMessage.setPublicContent(message.getNewContent()); // TODO content check
+        textMessage.setPublicContent(contentManager.validateMessageContent(message.getNewContent()));
         messagesRepository.save(textMessage);
         return new ChatTextMessageDto(textMessage);
     }
@@ -67,9 +74,26 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<ChatTextMessageDto> getLastMessages(String chatUUID, String number) {
-        List<ChatTextMessageDto> messages; // TODO Page ?
-        return null;
+    public ChatTextMessageDto recoverMessage(DeleteTextMessage message) {
+        ChatTextMessage textMessage = getMessage(message.getChatUUID(), message.getMessageUUID());
+        if(! textMessage.getState().equals(MessageState.DELETED)){
+            throw new DeletedMessageException("Nothing to recover");
+        }
+        textMessage.setState(MessageState.RECOVERED);
+        textMessage.setPublicContent(contentManager.validateMessageContent(textMessage.getOriginalContent()));
+        messagesRepository.save(textMessage);
+        return new ChatTextMessageDto(textMessage);
+    }
+
+    @Override
+    public List<ChatTextMessageDto> getLast20Messages(String chatUUID) {
+        return messagesRepository.findFirst20ByChatUUID(chatUUID).stream().map(ChatTextMessageDto::new).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ChatTextMessageDto> getMessagesPage(String chatUUID, String page) {
+        return messagesRepository.findAllByChatUUID(chatUUID, PageRequest.of(Integer.parseInt(page), 100, Sort.by(Sort.Direction.DESC, "timestamp")))
+               .stream().map(ChatTextMessageDto::new).collect(Collectors.toList());
     }
 
     @Override

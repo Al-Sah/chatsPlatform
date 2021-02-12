@@ -9,9 +9,18 @@ import java.util.List;
 public interface ChatService {
 
     ChatDto createLocalChat(UserDetails creator, String participant);
+    ChatDto createGroup(UserDetails info, GroupCreationForm form);
+    ChatDto viewChat(String chatUUID);
+    //ChatDto updateChat(Object form);
+    void  deleteChat(String chatUUID);
+
     List<ChatDto> getPublicGroups();
+
     ChatDto joinPublicGroup(UserDetails info, String chatUUID);
     ChatDto joinPrivateGroup(UserDetails info, String chatUUID, String pswd);
-    ChatDto createGroup(UserDetails info, GroupCreationForm form);
-    ChatDto viewChat(UserDetails info, String chatUUID);
+    ChatDto leaveGroup(UserDetails info, String chatUUID);
+
+    List<ChatDto> getMineGroups(UserDetails info);
+
+
 }

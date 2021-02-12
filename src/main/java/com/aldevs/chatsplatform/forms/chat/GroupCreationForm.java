@@ -12,7 +12,6 @@ public class GroupCreationForm {
 
     @NotNull
     private String description;
-    @NotBlank(message = "field isPrivate cannot fe null")
     private Boolean isPrivate;
     private String password;
     @ParticipantsValidator

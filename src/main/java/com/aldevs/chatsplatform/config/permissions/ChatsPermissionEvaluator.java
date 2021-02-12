@@ -1,7 +1,6 @@
 package com.aldevs.chatsplatform.config.permissions;
 
-import com.aldevs.chatsplatform.entity.ChatPermission;
-import com.aldevs.chatsplatform.entity.Role;
+import com.aldevs.chatsplatform.entity.*;
 import com.aldevs.chatsplatform.exeption.ChatNotFoundException;
 import com.aldevs.chatsplatform.forms.chat.ChatTextMessageRequest;
 import com.aldevs.chatsplatform.forms.chat.DeleteTextMessage;
@@ -77,17 +76,50 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
         return false;
     }
 
+    private boolean hasPermissionChatAction(Authentication authentication, Object target, PermissionRegistry.Action permission){
+
+        String chatUUID = (String)target, currentUsername = authentication.getName();
+        Chat chat = chatsRepository.findByChatUUID(chatUUID).orElseThrow(()-> new ChatNotFoundException(chatUUID));
+
+        // TODO admin and Moderator configuration
+        if(authentication.getAuthorities().contains(Role.ROLE_ADMIN) || authentication.getAuthorities().contains(Role.ROLE_MODERATOR)) return true;
+
+        Optional<ChatUsersPermissions> part = permissionsRepository.findByChatUUIDAndUsername(chatUUID,currentUsername);
+        if(permission.equals(PermissionRegistry.Action.JOIN)) {
+            if(part.isPresent()){
+                throw new RuntimeException("You are participant"); // TODO
+            } else return true;
+        } else if(permission.equals(PermissionRegistry.Action.READ)) {
+            if(chat.getType().equals(ChatType.PUBLIC_GROUP)){
+                return true;
+            } else return part.isPresent();
+        }
+        Set<ChatPermission> userPermission = part.orElseThrow(()-> new RuntimeException("User dont have any permission in chat")).getParticipantPermissions();
+        if(permission.equals(PermissionRegistry.Action.LEAVE)){
+            if(userPermission.contains(ChatPermission.GROUP_CHAT_CREATOR)){
+                throw new RuntimeException("Creator cannot leave a chat");// TODO
+            } else if(chat.getType().equals(ChatType.LOCAL_CHAT)){
+                throw new RuntimeException("User cannot leave a local chat");// TODO
+            } else return true;
+        } else if(permission.equals(PermissionRegistry.Action.DELETE)){
+            if(chat.getType().equals(ChatType.LOCAL_CHAT)){
+                return true;
+            } else return userPermission.contains(ChatPermission.GROUP_CHAT_CREATOR); // ??
+        }
+        return false;
+    }
+
     @Override
     public boolean hasPermission(Authentication authentication, Object target, Object permission) {
         if(permission instanceof PermissionRegistry.PermissionPair) {
             if(((PermissionRegistry.PermissionPair) permission).getTarget().equals(PermissionRegistry.Target.MESSAGE)){
                 return hasPermissionMessageAction(authentication,target, ((PermissionRegistry.PermissionPair) permission).getAction());
-            }else {
-                return false;
+            }else if(((PermissionRegistry.PermissionPair) permission).getTarget().equals(PermissionRegistry.Target.CHAT)){
+                return hasPermissionChatAction(authentication,target, ((PermissionRegistry.PermissionPair) permission).getAction());
             }
-        } else {
-            return false;
+            else return false;
         }
+        else return false;
     }
 
     @Override

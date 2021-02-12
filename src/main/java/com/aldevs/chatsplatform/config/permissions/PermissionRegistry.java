@@ -11,7 +11,8 @@ public class PermissionRegistry {
         READ,
         UPDATE,
         DELETE,
-        JOIN
+        JOIN,
+        LEAVE
     }
     public enum Target {
         CHAT,
@@ -57,6 +58,9 @@ public class PermissionRegistry {
         }
         public PermissionPair join() {
             return new PermissionPair(Target.CHAT, Action.JOIN);
+        }
+        public PermissionPair leave() {
+            return new PermissionPair(Target.CHAT, Action.LEAVE);
         }
     }
 }

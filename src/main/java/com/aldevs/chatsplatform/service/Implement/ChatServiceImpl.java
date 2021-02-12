@@ -13,6 +13,7 @@ import com.aldevs.chatsplatform.repositories.ChatsRepository;
 import com.aldevs.chatsplatform.service.ChatService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,7 +52,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto joinPublicGroup(UserDetails info, String chatUUID) {
-        // TODO Is group part
         Chat group = chatsRepository.findByChatUUIDAndType(chatUUID, ChatType.PUBLIC_GROUP).orElseThrow(()-> new ChatNotFoundException(chatUUID));
         group.getParticipants().add(info.getUsername());
         chatsRepository.save(group);
@@ -61,7 +61,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public ChatDto joinPrivateGroup(UserDetails info, String chatUUID, String pswd) {
-        // TODO Is group part
         Chat group = chatsRepository.findByChatUUIDAndType(chatUUID, ChatType.PRIVATE_GROUP).orElseThrow(()-> new ChatNotFoundException(chatUUID));
         if(group.getPassword().equals(pswd)){
             group.getParticipants().add(info.getUsername());
@@ -69,6 +68,19 @@ public class ChatServiceImpl implements ChatService {
         chatsRepository.save(group);
         permissionsRepository.save(new ChatUsersPermissions(chatUUID, info.getUsername(), Collections.singleton(ChatPermission.CHAT_BASIC)));
         return new ChatDto(group);
+    }
+
+    @Override
+    public ChatDto leaveGroup(UserDetails info, String chatUUID) {
+        permissionsRepository.deleteAllByChatUUIDAndUsername(chatUUID, info.getUsername());
+        Chat group = chatsRepository.findByChatUUID(chatUUID).orElseThrow();
+        group.getParticipants().remove(info.getUsername());
+        return new ChatDto(group);
+    }
+
+    @Override
+    public List<ChatDto> getMineGroups(UserDetails info) {
+        return chatsRepository.findAllByParticipantsIn(Collections.singletonList(info.getUsername())).stream().map(ChatDto::new).collect(Collectors.toList());
     }
 
     @Override
@@ -89,15 +101,23 @@ public class ChatServiceImpl implements ChatService {
         chatsRepository.save(chat);
 
         permissionsRepository.save(new ChatUsersPermissions(chatUUID, currentUser, Collections.singleton(ChatPermission.GROUP_CHAT_CREATOR)));
-        participants.forEach(p-> permissionsRepository.save(new ChatUsersPermissions(chatUUID, p, Collections.singleton(ChatPermission.CHAT_BASIC))));
+        for (String participant : participants) {
+            if(!participant.equals(currentUser)){
+                permissionsRepository.save(new ChatUsersPermissions(chatUUID, participant, Collections.singleton(ChatPermission.CHAT_BASIC)));
+            }
+        }
         return new ChatDto(chat);
     }
 
     @Override
-    public ChatDto viewChat(UserDetails info, String chatUUID) {
-        //TODO logic
-        return new ChatDto(chatsRepository.findByChatUUID(chatUUID).orElseThrow(()-> new ChatNotFoundException(chatUUID)));
+    public ChatDto viewChat(String chatUUID) {
+        return new ChatDto(chatsRepository.findByChatUUID(chatUUID).orElseThrow());
     }
 
-
+    @Override
+    @Transactional
+    public void deleteChat(String chatUUID) {
+        permissionsRepository.deleteAllByChatUUID(chatUUID);
+        chatsRepository.deleteByChatUUID(chatUUID);
+    }
 }

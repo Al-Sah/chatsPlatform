@@ -9,4 +9,6 @@ import java.util.Optional;
 @Repository
 public interface ChatPermissionsRepository extends JpaRepository<ChatUsersPermissions,Long> {
     Optional<ChatUsersPermissions> findByChatUUIDAndUsername(String id, String username);
+    void deleteAllByChatUUIDAndUsername(String chatUUID, String username);
+    void deleteAllByChatUUID(String chatUUID);
 }

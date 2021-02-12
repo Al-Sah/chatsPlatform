@@ -11,11 +11,12 @@ import java.util.Optional;
 @Repository
 public interface ChatsRepository extends JpaRepository<Chat, Long> {
 
-    boolean existsByTypeAndParticipantsIn(ChatType localChat, List<String> participants);
     Optional<Chat> findByTypeAndParticipantsIn(ChatType localChat, List<String> participants);
-    Optional<Chat> findByParticipantsIn(List<String> participants);
+    List<Chat> findAllByParticipantsIn(List<String> participants);
     List<Chat> findAllByType(ChatType type);
     Optional<Chat> findByChatUUIDAndType(String chatUUID, ChatType type);
     Optional<Chat> findByChatUUID(String chatUUID);
     boolean existsByChatUUID(String id);
+
+    void deleteByChatUUID(String chatUUID);
 }

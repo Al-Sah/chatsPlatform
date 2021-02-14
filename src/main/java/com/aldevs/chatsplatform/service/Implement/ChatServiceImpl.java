@@ -8,7 +8,9 @@ import com.aldevs.chatsplatform.entity.ChatType;
 import com.aldevs.chatsplatform.entity.ChatUsersPermissions;
 import com.aldevs.chatsplatform.exeption.ChatExistException;
 import com.aldevs.chatsplatform.exeption.ChatNotFoundException;
+import com.aldevs.chatsplatform.forms.chat.ChatUpdate;
 import com.aldevs.chatsplatform.forms.chat.GroupCreationForm;
+import com.aldevs.chatsplatform.forms.chat.ManageUser;
 import com.aldevs.chatsplatform.forms.chat.SetPermissionsForm;
 import com.aldevs.chatsplatform.repositories.ChatPermissionsRepository;
 import com.aldevs.chatsplatform.repositories.ChatsRepository;
@@ -117,6 +119,26 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public ChatDto updateChat(ChatUpdate form) {
+        Chat chat = chatsRepository.findByChatUUID(form.getChatUUID()).orElseThrow(()-> new ChatNotFoundException(form.getChatUUID()));
+        if(chat.getType().equals(ChatType.LOCAL_CHAT)){
+            throw new RuntimeException("You cannot join user to local chat");
+        } else if(form.isChangeType()){
+            if(chat.getType().equals(ChatType.PRIVATE_GROUP)){ //TODO permission check
+                chat.setType(ChatType.PUBLIC_GROUP);
+            } else{
+                chat.setType(ChatType.PRIVATE_GROUP);
+                chat.setPassword(form.getPassword() != null ? form.getPassword() : chat.getPassword());
+            }
+        }
+        if(form.getNewDescription() != null && !form.getNewDescription().isEmpty()){
+            chat.setDescription(form.getNewDescription());
+        }
+        chatsRepository.save(chat);
+        return new ChatDto(chat);
+    }
+
+    @Override
     @Transactional
     public void deleteChat(String chatUUID) {
         permissionsRepository.deleteAllByChatUUID(chatUUID);
@@ -151,4 +173,33 @@ public class ChatServiceImpl implements ChatService {
         return new ChatUsersPermissionsDto(currentPermissions);
     }
 
+
+
+    @Override
+    public ChatDto addUser(ManageUser form) {
+        Chat group = chatsRepository.findByChatUUID(form.getChatUUID()).orElseThrow(()-> new ChatNotFoundException(form.getChatUUID()));
+        if(group.getType().equals(ChatType.LOCAL_CHAT)){
+            throw new RuntimeException("You cannot join user to local chat");
+        } else if(group.getParticipants().contains(form.getUsername())){
+            throw new RuntimeException("User is a participant");
+        }
+        chatsRepository.save(group);
+        permissionsRepository.save(new ChatUsersPermissions(form.getChatUUID(), form.getUsername(), Collections.singleton(ChatPermission.CHAT_BASIC)));
+        return new ChatDto(group);
+    }
+
+    @Override
+    @Transactional
+    public ChatDto deleteUser(ManageUser form) {
+        Chat group = chatsRepository.findByChatUUID(form.getChatUUID()).orElseThrow(()-> new ChatNotFoundException(form.getChatUUID()));
+        if(group.getType().equals(ChatType.LOCAL_CHAT)){
+            throw new RuntimeException("You cannot delete user from local chat");
+        }else if(! group.getParticipants().contains(form.getUsername())){
+            throw new RuntimeException("User is not a participant");
+        }
+        group.getParticipants().remove(form.getUsername());
+        chatsRepository.save(group);
+        permissionsRepository.deleteAllByChatUUIDAndUsername(form.getChatUUID(), form.getUsername());
+        return new ChatDto(group);
+    }
 }

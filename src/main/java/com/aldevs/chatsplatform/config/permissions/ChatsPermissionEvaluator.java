@@ -111,6 +111,15 @@ public class ChatsPermissionEvaluator implements PermissionEvaluator {
         }else if(permission.equals(PermissionRegistry.Action.SETUP)){
             return (userPermission.contains(ChatPermission.GROUP_CHAT_CREATOR) || !Collections.disjoint(userPermission, setupSet));
         }
+        else if(permission.equals(PermissionRegistry.Action.U_ADD)){
+            return (userPermission.contains(ChatPermission.ADD_NEW_USER) || !Collections.disjoint(userPermission, sudoSet));
+        }
+        else if(permission.equals(PermissionRegistry.Action.U_DELL)){
+            return (userPermission.contains(ChatPermission.DELETE_USER) || !Collections.disjoint(userPermission, sudoSet));
+        }
+        else if(permission.equals(PermissionRegistry.Action.UPDATE)){
+            return !Collections.disjoint(userPermission, sudoSet);
+        }
         return false;
     }
 

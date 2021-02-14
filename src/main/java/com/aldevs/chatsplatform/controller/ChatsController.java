@@ -2,9 +2,7 @@ package com.aldevs.chatsplatform.controller;
 
 import com.aldevs.chatsplatform.Dtos.ChatDto;
 import com.aldevs.chatsplatform.Dtos.ChatUsersPermissionsDto;
-import com.aldevs.chatsplatform.forms.chat.CreationLocalChat;
-import com.aldevs.chatsplatform.forms.chat.GroupCreationForm;
-import com.aldevs.chatsplatform.forms.chat.SetPermissionsForm;
+import com.aldevs.chatsplatform.forms.chat.*;
 import com.aldevs.chatsplatform.service.ChatService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -35,6 +33,12 @@ public class ChatsController {
         return chatService.createGroup(info, form);
     }
 
+    @PostMapping("/update")
+    @PreAuthorize("hasPermission(#form.chatUUID, @cpr.update())")
+    public ChatDto updateGroup(@Valid @RequestBody ChatUpdate form){
+        return chatService.updateChat(form);
+    }
+
     @GetMapping("/{chat}")
     @PreAuthorize("hasPermission(#chatUUID, @cpr.read())")
     public ChatDto viewChat(@PathVariable("chat") String chatUUID){
@@ -45,6 +49,7 @@ public class ChatsController {
     public List<ChatDto> getPublicGroups(){
         return chatService.getPublicGroups();
     }
+
     @GetMapping("/mine")
     public List<ChatDto> getMineGroups(@AuthenticationPrincipal UserDetails info){
         return chatService.getMineGroups(info);
@@ -74,10 +79,22 @@ public class ChatsController {
         chatService.deleteChat(chatUUID);
     }
 
-    @PutMapping("/permissions")
+    @PutMapping("/user/permissions")
     @PreAuthorize("hasPermission(#form.chatUUID, @cpr.set())")
     public ChatUsersPermissionsDto setPermissions(@RequestBody @Valid SetPermissionsForm form){
         return chatService.setPermissions(form);
+    }
+
+    @PutMapping("/user/add")
+    @PreAuthorize("hasPermission(#form.chatUUID, @cpr.u_add())")
+    public ChatDto addUser(@RequestBody @Valid ManageUser form){
+        return chatService.addUser(form);
+    }
+
+    @PutMapping("/user/del")
+    @PreAuthorize("hasPermission(#form.chatUUID, @cpr.u_dell())")
+    public ChatDto deleteUser(@RequestBody @Valid ManageUser form){
+        return chatService.deleteUser(form);
     }
 
 }

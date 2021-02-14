@@ -14,6 +14,8 @@ public class PermissionRegistry {
         JOIN,
         LEAVE,
         SETUP,
+        U_ADD,
+        U_DELL
     }
     public enum Target {
         CHAT,
@@ -62,6 +64,12 @@ public class PermissionRegistry {
         }
         public PermissionPair leave() {
             return new PermissionPair(Target.CHAT, Action.LEAVE);
+        }
+        public PermissionPair u_add() {
+            return new PermissionPair(Target.CHAT, Action.U_ADD);
+        }
+        public PermissionPair u_dell() {
+            return new PermissionPair(Target.CHAT, Action.U_DELL);
         }
     }
 }

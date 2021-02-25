@@ -4,5 +4,80 @@
       "name": "security.jwt.expiredTime",
       "type": "java.lang.Long",
       "description": "Description for security.jwt.expiredTime. Shows valid time in milliseconds."
-  }
-] }
+    },
+    {
+      "name": "moderator.permissions.send-messages-to-local-chat",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.send-messages-to-local-chat."
+    },
+    {
+      "name": "moderator.permissions.send-messages-to-public-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.send-messages-to-public-group."
+    },
+    {
+      "name": "moderator.permissions.send-messages-to-private-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.send-messages-to-private-group."
+    },
+    {
+      "name": "moderator.permissions.read-messages-in-local-chat",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.read-messages-in-local-chat."
+    },
+    {
+      "name": "moderator.permissions.read-messages-in_public-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.read-messages-in_public-group."
+    },
+    {
+      "name": "moderator.permissions.read-messages-in_private-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.read-messages-in_private-group."
+    },
+    {
+      "name": "moderator.permissions.edit-messages-in-local-chat",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.edit-messages-in-local-chat."
+    },
+    {
+      "name": "moderator.permissions.edit-messages-in-public-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.edit-messages-in-public-group."
+    },
+    {
+      "name": "moderator.permissions.edit-messages-in-private-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.edit-messages-in-private-group."
+    },
+    {
+      "name": "moderator.permissions.delete-messages-in-local-chat",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.delete-messages-in-local-chat."
+    },
+    {
+      "name": "moderator.permissions.delete-messages-in-public-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.delete-messages-in-public-group."
+    },
+    {
+      "name": "moderator.permissions.delete-messages-in-private-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.delete-messages-in-private-group."
+    },
+    {
+      "name": "moderator.permissions.delete-local-chat",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.delete-local-chat."
+    },
+    {
+      "name": "moderator.permissions.delete-public-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.delete-public-group."
+    },
+    {
+      "name": "moderator.permissions.delete-private-group",
+      "type": "java.lang.Boolean",
+      "description": "Description for moderator.permissions.delete-private-group."
+    }
+  ] }

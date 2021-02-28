@@ -26,13 +26,16 @@ public class Chat {
     private Date creationDate;
     private String description;
     private String password;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<ChatAction> actions;
 
-    public Chat(List<String> participants, String chatUUID, ChatType type, Date creationDate, String description, String password) {
+    public Chat(List<String> participants, String chatUUID, ChatType type, Date creationDate, String description, String password, List<ChatAction> actions) {
         this.participants = participants;
         this.chatUUID = chatUUID;
         this.type = type;
         this.creationDate = creationDate;
         this.description = description;
         this.password = password;
+        this.actions = actions;
     }
 }

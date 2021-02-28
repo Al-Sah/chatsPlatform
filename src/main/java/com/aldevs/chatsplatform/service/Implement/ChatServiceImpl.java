@@ -2,10 +2,7 @@ package com.aldevs.chatsplatform.service.Implement;
 
 import com.aldevs.chatsplatform.Dtos.ChatDto;
 import com.aldevs.chatsplatform.Dtos.ChatUsersPermissionsDto;
-import com.aldevs.chatsplatform.entity.Chat;
-import com.aldevs.chatsplatform.entity.ChatPermission;
-import com.aldevs.chatsplatform.entity.ChatType;
-import com.aldevs.chatsplatform.entity.ChatUsersPermissions;
+import com.aldevs.chatsplatform.entity.*;
 import com.aldevs.chatsplatform.exeption.ChatExistException;
 import com.aldevs.chatsplatform.exeption.ChatNotFoundException;
 import com.aldevs.chatsplatform.forms.chat.ChatUpdate;
@@ -44,7 +41,7 @@ public class ChatServiceImpl implements ChatService {
         if(oc.isPresent() && oc.get().getParticipants().containsAll(participants)){
             throw new ChatExistException("LOCAL_CHAT", oc.get().getChatUUID());
         }
-        Chat chat = new Chat(participants, chatUUID, ChatType.LOCAL_CHAT, new Date(), "", "");
+        Chat chat = new Chat(participants, chatUUID, ChatType.LOCAL_CHAT, new Date(), "", "", Collections.singletonList(new ChatAction("Chat created")));
         chatsRepository.save(chat);
         return new ChatDto(chat);
     }
@@ -58,6 +55,7 @@ public class ChatServiceImpl implements ChatService {
     public ChatDto joinPublicGroup(UserDetails info, String chatUUID) {
         Chat group = chatsRepository.findByChatUUIDAndType(chatUUID, ChatType.PUBLIC_GROUP).orElseThrow(()-> new ChatNotFoundException(chatUUID));
         group.getParticipants().add(info.getUsername());
+        group.getActions().add(new ChatAction("user "+info.getUsername()+" joined"));
         chatsRepository.save(group);
         permissionsRepository.save(new ChatUsersPermissions(chatUUID, info.getUsername(), Collections.singleton(ChatPermission.CHAT_BASIC)));
         return new ChatDto(group);
@@ -69,6 +67,7 @@ public class ChatServiceImpl implements ChatService {
         if(group.getPassword().equals(pswd)){
             group.getParticipants().add(info.getUsername());
         } else throw new RuntimeException("Wrong password");
+        group.getActions().add(new ChatAction("user "+info.getUsername()+" joined"));
         chatsRepository.save(group);
         permissionsRepository.save(new ChatUsersPermissions(chatUUID, info.getUsername(), Collections.singleton(ChatPermission.CHAT_BASIC)));
         return new ChatDto(group);
@@ -79,6 +78,8 @@ public class ChatServiceImpl implements ChatService {
         permissionsRepository.deleteAllByChatUUIDAndUsername(chatUUID, info.getUsername());
         Chat group = chatsRepository.findByChatUUID(chatUUID).orElseThrow();
         group.getParticipants().remove(info.getUsername());
+        group.getActions().add(new ChatAction("user "+info.getUsername()+" left"));
+        chatsRepository.save(group);
         return new ChatDto(group);
     }
 
@@ -101,7 +102,8 @@ public class ChatServiceImpl implements ChatService {
                 form.getIsPrivate() ? ChatType.PRIVATE_GROUP : ChatType.PUBLIC_GROUP,
                 new Date(),
                 form.getDescription(),
-                form.getIsPrivate() ? form.getPassword() : "");
+                form.getIsPrivate() ? form.getPassword() : "",
+                Collections.singletonList(new ChatAction("Chat created")));
         chatsRepository.save(chat);
 
         permissionsRepository.save(new ChatUsersPermissions(chatUUID, currentUser, Collections.singleton(ChatPermission.GROUP_CHAT_CREATOR)));
@@ -130,10 +132,13 @@ public class ChatServiceImpl implements ChatService {
                 chat.setType(ChatType.PRIVATE_GROUP);
                 chat.setPassword(form.getPassword() != null ? form.getPassword() : chat.getPassword());
             }
+            chat.getActions().add(new ChatAction("Changed chat type"));
         }
         if(form.getNewDescription() != null && !form.getNewDescription().isEmpty()){
             chat.setDescription(form.getNewDescription());
+            chat.getActions().add(new ChatAction("Modified description"));
         }
+
         chatsRepository.save(chat);
         return new ChatDto(chat);
     }
@@ -182,7 +187,10 @@ public class ChatServiceImpl implements ChatService {
             throw new RuntimeException("You cannot join user to local chat");
         } else if(group.getParticipants().contains(form.getUsername())){
             throw new RuntimeException("User is a participant");
+        } else {
+            group.getParticipants().add(form.getUsername());
         }
+        group.getActions().add(new ChatAction("Added user "+ form.getUsername()));
         chatsRepository.save(group);
         permissionsRepository.save(new ChatUsersPermissions(form.getChatUUID(), form.getUsername(), Collections.singleton(ChatPermission.CHAT_BASIC)));
         return new ChatDto(group);
@@ -198,6 +206,7 @@ public class ChatServiceImpl implements ChatService {
             throw new RuntimeException("User is not a participant");
         }
         group.getParticipants().remove(form.getUsername());
+        group.getActions().add(new ChatAction("Removed user "+ form.getUsername()));
         chatsRepository.save(group);
         permissionsRepository.deleteAllByChatUUIDAndUsername(form.getChatUUID(), form.getUsername());
         return new ChatDto(group);
